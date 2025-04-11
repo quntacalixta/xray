@@ -1,0 +1,30 @@
+# Model Configuration
+model:
+  name: "resnet18"
+  pretrained: true
+  num_classes: 2
+
+# Training Hyperparameters
+training:
+  batch_size: 32
+  learning_rate: 0.0001
+  epochs: 50
+  optimizer: "adam"
+  weight_decay: 0.00001
+
+# Data Preprocessing
+preprocessing:
+  image_size: 224
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+
+# Augmentation
+augmentation:
+  horizontal_flip: true
+  rotation_range: 20
+  brightness_range: [0.8, 1.2]
+
+# Logging and Tracking
+logging:
+  project_name: "chest-xray-pneumonia"
+  experiment_name: "baseline-resnet18"

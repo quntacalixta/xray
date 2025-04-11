@@ -1,0 +1,15 @@
+{"time":"2025-03-27T21:23:45.8325998+01:00","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"C:\\Users\\qckit\\Desktop\\xray.py\\wandb\\run-20250327_212345-s0l8beyn\\logs\\debug-core.log"}
+{"time":"2025-03-27T21:23:46.6828535+01:00","level":"INFO","msg":"created new stream","id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:46.6839657+01:00","level":"INFO","msg":"stream: started","id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:46.6840401+01:00","level":"INFO","msg":"handler: started","stream_id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:46.6846153+01:00","level":"INFO","msg":"sender: started","stream_id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:46.6846153+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:48.5745114+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-03-27T21:23:54.5910626+01:00","level":"INFO","msg":"stream: closing","id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:54.59386+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-03-27T21:23:54.6113782+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-03-27T21:23:55.319675+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-03-27T21:23:56.016287+01:00","level":"INFO","msg":"handler: closed","stream_id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:56.0167971+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:56.0180957+01:00","level":"INFO","msg":"sender: closed","stream_id":"s0l8beyn"}
+{"time":"2025-03-27T21:23:56.0180957+01:00","level":"INFO","msg":"stream: closed","id":"s0l8beyn"}

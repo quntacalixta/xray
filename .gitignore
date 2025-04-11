@@ -1,0 +1,17 @@
+# Data files
+data/raw/
+data/processed/
+
+# Python
+venv/
+pycache/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Models
+best_model.pth
+
+# Environment
+.env
