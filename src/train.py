@@ -4,6 +4,7 @@ import torch.optim as optim
 import wandb
 from tqdm import tqdm
 import yaml
+import os
 from src.data.preprocessing import create_data_loaders
 from src.models.model import ChestXRayClassifier
 
@@ -41,12 +42,17 @@ def train_model(config_path='configs/config.yaml'):
     
     # Setup device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
     
     # Data loaders
     train_loader, val_loader, test_loader = create_data_loaders(
         data_dir='data/raw/chest_xray',
         batch_size=config['training']['batch_size']
     )
+    
+    print(f"Training samples: {len(train_loader.dataset)}")
+    print(f"Validation samples: {len(val_loader.dataset)}")
+    print(f"Test samples: {len(test_loader.dataset)}")
     
     # Model
     model = ChestXRayClassifier(
@@ -56,20 +62,51 @@ def train_model(config_path='configs/config.yaml'):
     
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(
-        model.parameters(),
-        lr=config['training']['learning_rate'],
-        weight_decay=config['training']['weight_decay']
+    if config['training']['optimizer'].lower() == 'adam':
+        optimizer = optim.Adam(
+            model.parameters(),
+            lr=config['training']['learning_rate'],
+            weight_decay=config['training']['weight_decay']
+        )
+    elif config['training']['optimizer'].lower() == 'sgd':
+        optimizer = optim.SGD(
+            model.parameters(),
+            lr=config['training']['learning_rate'],
+            momentum=0.9,
+            weight_decay=config['training']['weight_decay']
+        )
+    else:
+        raise ValueError(f"Unsupported optimizer: {config['training']['optimizer']}")
+    
+    # Learning rate scheduler
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, 
+        mode='max', 
+        factor=0.5, 
+        patience=5, 
+        verbose=True
     )
+    
+    # Create directory for checkpoints
+    os.makedirs('checkpoints', exist_ok=True)
     
     # Training loop
     best_val_accuracy = 0.0
+    train_losses = []
+    val_losses = []
+    val_accuracies = []
+    
+    print(f"Starting training for {config['training']['epochs']} epochs...")
+    
     for epoch in range(config['training']['epochs']):
         model.train()
         train_loss = 0.0
+        correct_train = 0
+        total_train = 0
         
         # Training
-        for images, labels in tqdm(train_loader, desc=f'Epoch {epoch+1}'):
+        progress_bar = tqdm(train_loader, desc=f'Epoch {epoch+1}/{config["training"]["epochs"]}')
+        for images, labels in progress_bar:
             images, labels = images.to(device), labels.to(device)
             
             optimizer.zero_grad()
@@ -79,6 +116,17 @@ def train_model(config_path='configs/config.yaml'):
             optimizer.step()
             
             train_loss += loss.item()
+            
+            # Calculate training accuracy
+            _, predicted = torch.max(outputs.data, 1)
+            total_train += labels.size(0)
+            correct_train += (predicted == labels).sum().item()
+            
+            # Update progress bar
+            progress_bar.set_postfix({
+                'loss': f'{loss.item():.4f}',
+                'acc': f'{100 * correct_train / total_train:.2f}%'
+            })
         
         # Validation
         model.eval()
@@ -98,24 +146,56 @@ def train_model(config_path='configs/config.yaml'):
                 correct += (predicted == labels).sum().item()
         
         # Metrics
-        train_loss /= len(train_loader)
-        val_loss /= len(val_loader)
+        train_loss = train_loss / len(train_loader)
+        train_accuracy = 100 * correct_train / total_train
+        val_loss = val_loss / len(val_loader)
         val_accuracy = 100 * correct / total
         
+        # Store metrics for plotting
+        train_losses.append(train_loss)
+        val_losses.append(val_loss)
+        val_accuracies.append(val_accuracy)
+        
+        # Update learning rate
+        scheduler.step(val_accuracy)
+        
         # Logging
+        print(f"\nEpoch {epoch+1}/{config['training']['epochs']} - "
+              f"Train Loss: {train_loss:.4f}, Train Acc: {train_accuracy:.2f}%, "
+              f"Val Loss: {val_loss:.4f}, Val Acc: {val_accuracy:.2f}%")
+        
         wandb.log({
-            'epoch': epoch,
+            'epoch': epoch + 1,
+            'train_loss': train_loss,
+            'train_accuracy': train_accuracy,
+            'val_loss': val_loss,
+            'val_accuracy': val_accuracy,
+            'learning_rate': optimizer.param_groups[0]['lr']
+        })
+        
+        # Save checkpoint
+        checkpoint = {
+            'epoch': epoch + 1,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
             'train_loss': train_loss,
             'val_loss': val_loss,
             'val_accuracy': val_accuracy
-        })
+        }
+        
+        # Save latest model
+        torch.save(checkpoint, 'checkpoints/latest_model.pth')
         
         # Save best model
         if val_accuracy > best_val_accuracy:
             best_val_accuracy = val_accuracy
-            torch.save(model.state_dict(), 'best_model.pth')
+            torch.save(checkpoint, 'best_model.pth')
+            print(f"New best model saved with validation accuracy: {val_accuracy:.2f}%")
     
+    print(f"Training completed. Best validation accuracy: {best_val_accuracy:.2f}%")
     wandb.finish()
+    
+    return model, train_losses, val_losses, val_accuracies
 
 if __name__ == '__main__':
     train_model()

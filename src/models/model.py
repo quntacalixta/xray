@@ -18,7 +18,7 @@ class ChestXRayClassifier(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(512, num_classes)
-        )  # This parenthesis was missing
+        )  # Parenthèse fermante ajoutée correctement
     
     def forward(self, x):
         return self.backbone(x)
