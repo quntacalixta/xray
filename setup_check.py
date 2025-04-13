@@ -29,11 +29,36 @@ def check_python_version():
 def check_dependencies():
     """Check if required packages are installed"""
     print("\nChecking dependencies...")
-    required_packages = [
-        'torch', 'torchvision', 'numpy', 'pandas', 
-        'scikit-learn', 'Pillow', 'matplotlib', 
-        'seaborn', 'wandb', 'pyyaml'
-    ]
+
+    required_packages = {
+        'torch': 'torch',
+        'torchvision': 'torchvision',
+        'numpy': 'numpy',
+        'pandas': 'pandas',
+        'sklearn': 'scikit-learn',
+        'PIL': 'Pillow',
+        'matplotlib': 'matplotlib',
+        'seaborn': 'seaborn',
+        'wandb': 'wandb',
+        'yaml': 'pyyaml'
+    }
+
+    missing_packages = []
+    for import_name, pip_name in required_packages.items():
+        try:
+            importlib.import_module(import_name)
+            print(f"✅ {pip_name} is installed")
+        except ImportError:
+            missing_packages.append(pip_name)
+            print(f"❌ {pip_name} is missing")
+
+    if missing_packages:
+        print("\nInstall missing packages with:")
+        print(f"pip install {' '.join(missing_packages)}")
+        return False
+
+    return True
+
     
     missing_packages = []
     for package in required_packages:
@@ -126,4 +151,124 @@ def check_dataset():
                 print(f"✅ Found {len(images)} images in {split}/{class_name}/")
     
     if missing_structure:
-        print("\nThe dataset should be organize
+        print("\nThe dataset should be organized as follows:")
+        print("data/raw/chest_xray/")
+        print("├── train/")
+        print("│   ├── NORMAL/")
+        print("│   └── PNEUMONIA/")
+        print("├── val/")
+        print("│   ├── NORMAL/")
+        print("│   └── PNEUMONIA/")
+        print("└── test/")
+        print("    ├── NORMAL/")
+        print("    └── PNEUMONIA/")
+        return False
+    
+    return True
+
+def check_config():
+    """Check if config file exists and is valid"""
+    print("\nChecking configuration...")
+    config_path = Path('configs/config.yaml')
+    
+    if not config_path.exists():
+        print(f"❌ Configuration file not found at {config_path}")
+        return False
+    
+    try:
+        with open(config_path) as f:
+            config = yaml.safe_load(f)
+            
+        # Check required sections
+        required_sections = ['model', 'training', 'preprocessing', 'logging']
+        for section in required_sections:
+            if section not in config:
+                print(f"❌ Missing '{section}' section in config")
+                return False
+            print(f"✅ Found '{section}' configuration")
+        
+        return True
+    except Exception as e:
+        print(f"❌ Error parsing config file: {e}")
+        return False
+
+def check_git():
+    """Check git repository status"""
+    print("\nChecking git status...")
+    if not os.path.isdir('.git'):
+        print("⚠️ Not a git repository")
+        return True  # Not critical
+    
+    try:
+        # Check if there are uncommitted changes
+        result = subprocess.run(['git', 'status', '--porcelain'], 
+                               capture_output=True, text=True, check=True)
+        if result.stdout.strip():
+            print("⚠️ You have uncommitted changes")
+        else:
+            print("✅ Working directory is clean")
+            
+        # Get current branch
+        result = subprocess.run(['git', 'branch', '--show-current'], 
+                               capture_output=True, text=True, check=True)
+        branch = result.stdout.strip()
+        print(f"✅ Current branch: {branch}")
+        
+        return True
+    except subprocess.SubprocessError:
+        print("⚠️ Failed to run git commands")
+        return True  # Not critical
+    except FileNotFoundError:
+        print("⚠️ Git not found in PATH")
+        return True  # Not critical
+
+def check_wandb():
+    """Check Weights & Biases setup"""
+    print("\nChecking Weights & Biases (wandb) setup...")
+    try:
+        import wandb
+        
+        # Check if logged in
+        if wandb.api.api_key:
+            print("✅ WandB API key found")
+        else:
+            print("⚠️ Not logged in to WandB")
+            print("   You can login with: wandb login")
+        
+        return True
+    except ImportError:
+        print("❌ WandB not installed")
+        print("   Install with: pip install wandb")
+        return False
+
+def main():
+    """Run all checks"""
+    print("=" * 60)
+    print("CHEST X-RAY PNEUMONIA CLASSIFICATION PROJECT SETUP CHECK")
+    print("=" * 60)
+    
+    checks = [
+        check_python_version(),
+        check_dependencies(),
+        check_cuda(),
+        check_directory_structure(),
+        check_dataset(),
+        check_config(),
+        check_git(),
+        check_wandb()
+    ]
+    
+    print("\n" + "=" * 60)
+    if all(checks[:6]):  # Only the first 6 checks are critical
+        print("✅ All critical checks passed! You're ready to go.")
+        print("\nSuggested next steps:")
+        print("1. Run the dataset analysis: python analyze_dataset.py")
+        print("2. Start training: python -m src.train")
+        print("3. Evaluate the model: python -m src.evaluate")
+    else:
+        print("❌ Some critical checks failed. Please fix the issues above.")
+    
+    print("=" * 60)
+
+if __name__ == "__main__":
+    main()
