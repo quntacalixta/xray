@@ -18,3 +18,6 @@ best_model.pth
 
 # pour ignore le partage de check points sur github
 checkpoints/*.pth
+
+# pour ignorer le partage de wandb sur git
+echo "wandb/" >> .gitignore

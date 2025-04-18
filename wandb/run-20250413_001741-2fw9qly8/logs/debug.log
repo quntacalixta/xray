@@ -1,0 +1,23 @@
+2025-04-13 00:17:41,478 INFO    MainThread:20924 [wandb_setup.py:_flush():67] Current SDK version is 0.19.8
+2025-04-13 00:17:41,479 INFO    MainThread:20924 [wandb_setup.py:_flush():67] Configure stats pid to 20924
+2025-04-13 00:17:41,479 INFO    MainThread:20924 [wandb_setup.py:_flush():67] Loading settings from C:\Users\qckit\.config\wandb\settings
+2025-04-13 00:17:41,480 INFO    MainThread:20924 [wandb_setup.py:_flush():67] Loading settings from C:\Users\qckit\Desktop\xray.py\wandb\settings
+2025-04-13 00:17:41,480 INFO    MainThread:20924 [wandb_setup.py:_flush():67] Loading settings from environment variables
+2025-04-13 00:17:41,481 INFO    MainThread:20924 [wandb_init.py:setup_run_log_directory():647] Logging user logs to C:\Users\qckit\Desktop\xray.py\wandb\run-20250413_001741-2fw9qly8\logs\debug.log
+2025-04-13 00:17:41,483 INFO    MainThread:20924 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to C:\Users\qckit\Desktop\xray.py\wandb\run-20250413_001741-2fw9qly8\logs\debug-internal.log
+2025-04-13 00:17:41,483 INFO    MainThread:20924 [wandb_init.py:init():761] calling init triggers
+2025-04-13 00:17:41,484 INFO    MainThread:20924 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'model': {'name': 'resnet18', 'pretrained': True, 'num_classes': 2}, 'training': {'batch_size': 32, 'learning_rate': 0.0001, 'epochs': 25, 'optimizer': 'adam', 'weight_decay': 1e-05}, 'preprocessing': {'image_size': 224, 'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225]}, 'augmentation': {'horizontal_flip': True, 'rotation_range': 20, 'brightness_range': [0.8, 1.2]}, 'logging': {'project_name': 'chest-xray-pneumonia', 'experiment_name': 'baseline-resnet18'}, '_wandb': {}}
+2025-04-13 00:17:41,484 INFO    MainThread:20924 [wandb_init.py:init():784] starting backend
+2025-04-13 00:17:41,484 INFO    MainThread:20924 [wandb_init.py:init():788] sending inform_init request
+2025-04-13 00:17:41,571 INFO    MainThread:20924 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=spawn, using: spawn
+2025-04-13 00:17:41,571 INFO    MainThread:20924 [wandb_init.py:init():798] backend started and connected
+2025-04-13 00:17:41,573 INFO    MainThread:20924 [wandb_init.py:init():891] updated telemetry
+2025-04-13 00:17:41,684 INFO    MainThread:20924 [wandb_init.py:init():915] communicating run to backend with 90.0 second timeout
+2025-04-13 00:17:42,877 INFO    MainThread:20924 [wandb_init.py:init():990] starting run threads in backend
+2025-04-13 00:17:43,458 INFO    MainThread:20924 [wandb_run.py:_console_start():2375] atexit reg
+2025-04-13 00:17:43,459 INFO    MainThread:20924 [wandb_run.py:_redirect():2227] redirect: wrap_raw
+2025-04-13 00:17:43,459 INFO    MainThread:20924 [wandb_run.py:_redirect():2292] Wrapping output streams.
+2025-04-13 00:17:43,459 INFO    MainThread:20924 [wandb_run.py:_redirect():2315] Redirects installed.
+2025-04-13 00:17:43,467 INFO    MainThread:20924 [wandb_init.py:init():1032] run started, returning control to user process
+2025-04-13 00:28:37,145 INFO    MsgRouterThr:20924 [mailbox.py:close():129] Closing mailbox, abandoning 1 handles.

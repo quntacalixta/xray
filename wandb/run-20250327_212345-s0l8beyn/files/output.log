@@ -1,0 +1,22 @@
+C:\Users\qckit\Desktop\xray.py\venv\Lib\site-packages\torchvision\models\_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\qckit\Desktop\xray.py\venv\Lib\site-packages\torchvision\models\_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=ResNet18_Weights.IMAGENET1K_V1`. You can also use `weights=ResNet18_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Downloading: "https://download.pytorch.org/models/resnet18-f37072fd.pth" to C:\Users\qckit/.cache\torch\hub\checkpoints\resnet18-f37072fd.pth
+100%|███████████████████████████████████████████████████████████████████████████████████████████| 44.7M/44.7M [00:02<00:00, 16.7MB/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\qckit\Desktop\xray.py\src\train.py", line 117, in <module>
+    train_model()
+    ~~~~~~~~~~~^^
+  File "C:\Users\qckit\Desktop\xray.py\src\train.py", line 47, in train_model
+    optimizer = optim.Adam(
+        model.parameters(),
+        lr=config['training']['learning_rate'],
+        weight_decay=config['training']['weight_decay']
+    )
+  File "C:\Users\qckit\Desktop\xray.py\venv\Lib\site-packages\torch\optim\adam.py", line 65, in __init__
+    if not 0.0 <= weight_decay:
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: '<=' not supported between instances of 'float' and 'str'

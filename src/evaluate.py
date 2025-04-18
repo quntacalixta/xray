@@ -4,11 +4,11 @@ from src.models.model import ChestXRayClassifier
 from src.data.preprocessing import create_data_loaders
 from sklearn.metrics import classification_report, confusion_matrix
 
-def evaluate(threshold=0.5):
+def evaluate(threshold=0.5, model_path='best_model.pth'):
     """Enhanced evaluation with threshold adjustment and error analysis"""
     # Load model
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = ChestXRayClassifier.load_from_checkpoint('best_model.pth', device)
+    model = ChestXRayClassifier.load_from_checkpoint(model_path, device)
     
     # Load test data
     _, _, test_loader = create_data_loaders('data/raw/chest_xray')

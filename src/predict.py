@@ -105,9 +105,13 @@ def visualize_prediction(image, prediction, probability, save_path=None):
     plt.figtext(0.5, 0.01, f'Confidence', ha='center')
     plt.figtext(0.5, 0.03, f'NORMAL {(1-probability):.2%} | {probability:.2%} PNEUMONIA', 
                ha='center', fontsize=12)
-    plt.colorbar(plt.cm.ScalarMappable(cmap=plt.cm.RdYlGn_r), 
-                orientation='horizontal', ticks=[0, 0.5, 1], 
-                label='Pneumonia Probability')
+    
+    # Correction de la barre de couleur
+    norm = plt.Normalize(0, 1)
+    sm = plt.cm.ScalarMappable(cmap=plt.cm.RdYlGn_r, norm=norm)
+    sm.set_array([])
+    plt.colorbar(sm, orientation='horizontal', ticks=[0, 0.5, 1], 
+                 label='Pneumonia Probability', pad=0.2)
     
     plt.axis('off')
     plt.tight_layout()

@@ -1,0 +1,33 @@
+{
+  "os":  "Windows-10-10.0.19045-SP0",
+  "python":  "CPython 3.13.1",
+  "startedAt":  "2025-04-14T09:06:20.275697Z",
+  "args":  [
+    "--config",
+    "configs/config.yaml"
+  ],
+  "program":  "-m src.train",
+  "git":  {
+    "remote":  "https://github.com/quntacalixta/xray.git",
+    "commit":  "56b34a97e89d194cbba5fb12eaf005e0b17ef108"
+  },
+  "email":  "kitiopouokemquntacalixta@gmail.com",
+  "root":  "C:\\Users\\qckit\\Desktop\\xray.py",
+  "host":  "LAPTOP-01C005",
+  "executable":  "C:\\Users\\qckit\\Desktop\\xray.py\\venv\\Scripts\\python.exe",
+  "cpu_count":  2,
+  "cpu_count_logical":  4,
+  "disk":  {
+    "/":  {
+      "total":  "254758875136",
+      "used":  "167238881280"
+    }
+  },
+  "memory":  {
+    "total":  "8463040512"
+  },
+  "cpu":  {
+    "count":  2,
+    "countLogical":  4
+  }
+}

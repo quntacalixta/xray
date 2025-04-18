@@ -1,0 +1,29 @@
+2025-04-13 18:06:12,697 INFO    MainThread:5224 [wandb_setup.py:_flush():67] Current SDK version is 0.19.8
+2025-04-13 18:06:12,698 INFO    MainThread:5224 [wandb_setup.py:_flush():67] Configure stats pid to 5224
+2025-04-13 18:06:12,698 INFO    MainThread:5224 [wandb_setup.py:_flush():67] Loading settings from C:\Users\qckit\.config\wandb\settings
+2025-04-13 18:06:12,698 INFO    MainThread:5224 [wandb_setup.py:_flush():67] Loading settings from C:\Users\qckit\Desktop\xray.py\wandb\settings
+2025-04-13 18:06:12,699 INFO    MainThread:5224 [wandb_setup.py:_flush():67] Loading settings from environment variables
+2025-04-13 18:06:12,699 INFO    MainThread:5224 [wandb_init.py:setup_run_log_directory():647] Logging user logs to C:\Users\qckit\Desktop\xray.py\wandb\run-20250413_180612-op6wj5kr\logs\debug.log
+2025-04-13 18:06:12,700 INFO    MainThread:5224 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to C:\Users\qckit\Desktop\xray.py\wandb\run-20250413_180612-op6wj5kr\logs\debug-internal.log
+2025-04-13 18:06:12,700 INFO    MainThread:5224 [wandb_init.py:init():761] calling init triggers
+2025-04-13 18:06:12,700 INFO    MainThread:5224 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'model': {'name': 'resnet18', 'pretrained': True, 'num_classes': 2}, 'training': {'batch_size': 32, 'learning_rate': 0.0001, 'epochs': 30, 'optimizer': 'adam', 'weight_decay': 1e-05}, 'preprocessing': {'image_size': 224, 'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225]}, 'augmentation': {'horizontal_flip': True, 'rotation_range': 20, 'brightness_range': [0.8, 1.2]}, 'logging': {'project_name': 'chest-xray-pneumonia', 'experiment_name': 'baseline-resnet18'}, '_wandb': {}}
+2025-04-13 18:06:12,701 INFO    MainThread:5224 [wandb_init.py:init():784] starting backend
+2025-04-13 18:06:12,701 INFO    MainThread:5224 [wandb_init.py:init():788] sending inform_init request
+2025-04-13 18:06:12,907 INFO    MainThread:5224 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=spawn, using: spawn
+2025-04-13 18:06:12,907 INFO    MainThread:5224 [wandb_init.py:init():798] backend started and connected
+2025-04-13 18:06:12,910 INFO    MainThread:5224 [wandb_init.py:init():891] updated telemetry
+2025-04-13 18:06:13,023 INFO    MainThread:5224 [wandb_init.py:init():915] communicating run to backend with 90.0 second timeout
+2025-04-13 18:06:13,941 INFO    MainThread:5224 [wandb_init.py:init():990] starting run threads in backend
+2025-04-13 18:06:18,316 INFO    MainThread:5224 [wandb_run.py:_console_start():2375] atexit reg
+2025-04-13 18:06:18,317 INFO    MainThread:5224 [wandb_run.py:_redirect():2227] redirect: wrap_raw
+2025-04-13 18:06:18,317 INFO    MainThread:5224 [wandb_run.py:_redirect():2292] Wrapping output streams.
+2025-04-13 18:06:18,317 INFO    MainThread:5224 [wandb_run.py:_redirect():2315] Redirects installed.
+2025-04-13 18:06:18,325 INFO    MainThread:5224 [wandb_init.py:init():1032] run started, returning control to user process
+2025-04-14 06:44:56,901 INFO    MainThread:5224 [wandb_run.py:_finish():2112] finishing run calixta-universit-libre-de-bruxelles/chest-xray-pneumonia/op6wj5kr
+2025-04-14 06:44:56,940 INFO    MainThread:5224 [wandb_run.py:_atexit_cleanup():2340] got exitcode: 0
+2025-04-14 06:44:56,955 INFO    MainThread:5224 [wandb_run.py:_restore():2322] restore
+2025-04-14 06:44:56,964 INFO    MainThread:5224 [wandb_run.py:_restore():2328] restore done
+2025-04-14 06:44:58,138 INFO    MainThread:5224 [wandb_run.py:_footer_history_summary_info():3956] rendering history
+2025-04-14 06:44:58,151 INFO    MainThread:5224 [wandb_run.py:_footer_history_summary_info():3988] rendering summary
+2025-04-14 06:44:58,169 INFO    MainThread:5224 [wandb_run.py:_footer_sync_info():3917] logging synced files
