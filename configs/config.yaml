@@ -7,24 +7,25 @@ model:
 # Training Hyperparameters
 training:
   batch_size: 32
-  learning_rate: 0.0001
+  learning_rate: 0.001  # Augmenté de 0.0001 à 0.001
   epochs: 20
   optimizer: "adam"
   weight_decay: 0.00001
+  use_focal_loss: true  # Activation de la Focal Loss
+  use_weighted_sampling: true  # Activation du weighted sampling
 
 # Data Preprocessing
 preprocessing:
   image_size: 224
-  mean: [0.485, 0.456, 0.406]
-  std: [0.229, 0.224, 0.225]
+  mean: [0.5, 0.5, 0.5]  # Valeurs adaptées aux radiographies
+  std: [0.25, 0.25, 0.25]  # Valeurs adaptées aux radiographies
 
-# Augmentation
-augmentation:
-  horizontal_flip: true
-  rotation_range: 20
-  brightness_range: [0.8, 1.2]
+# Evaluation
+evaluation:
+  threshold: 0.6  # Seuil optimal déterminé par vos tests
+  metrics: ["accuracy", "precision", "recall", "f1_score", "specificity", "ppv", "npv"]
 
 # Logging and Tracking
 logging:
   project_name: "chest-xray-pneumonia"
-  experiment_name: "baseline-resnet18"
+  experiment_name: "optimized-resnet18"

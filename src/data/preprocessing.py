@@ -1,135 +1,118 @@
 import os
 import numpy as np
-import pandas as pd
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 from torchvision import transforms
 from PIL import Image
 
 class ChestXRayDataset(Dataset):
-    """Custom Dataset for Chest X-Ray Images"""
     def __init__(self, data_dir, transform=None, mode='train'):
-        """
-        Args:
-            data_dir (string): Directory with all the images
-            transform (callable, optional): Optional transform to be applied
-            mode (string): 'train', 'val', or 'test'
-        """
         self.data_dir = data_dir
         self.mode = mode
         self.transform = transform or self._get_default_transform()
-        
-        # Collect image paths and labels
         self.images, self.labels = self._load_data()
     
     def _get_default_transform(self):
-        """Default image transformations"""
         return transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.Grayscale(num_output_channels=3),
             transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]
-            )
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.25, 0.25, 0.25])
         ])
     
     def _load_data(self):
-        """Load image paths and labels"""
-        images = []
-        labels = []
-        
-        # Define class mapping
+        images, labels = [], []
         class_map = {'NORMAL': 0, 'PNEUMONIA': 1}
         
-        # Scan through image directories
         for class_name, label in class_map.items():
             class_dir = os.path.join(self.data_dir, self.mode, class_name)
-            
-            # Add all images from this directory
             for img_name in os.listdir(class_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
-                    img_path = os.path.join(class_dir, img_name)
-                    images.append(img_path)
+                    images.append(os.path.join(class_dir, img_name))
                     labels.append(label)
         
         return images, labels
     
+    def get_sample_weights(self):
+        class_counts = np.bincount(self.labels)
+        class_weights = 1. / torch.tensor(class_counts, dtype=torch.float)
+        return class_weights[self.labels]
+    
     def __len__(self):
-        """Return total number of images"""
         return len(self.images)
     
     def __getitem__(self, idx):
-        """Get a single image and its label"""
-        img_path = self.images[idx]
-        image = Image.open(img_path)
-        
-        # Apply transformations
-        image = self.transform(image)
-        label = self.labels[idx]
-        
-        return image, label
+        image = Image.open(self.images[idx])
+        return self.transform(image), self.labels[idx]
 
-def create_data_loaders(data_dir, batch_size=32):
-    """Create data loaders for train, validation, and test sets"""
-    # Define transforms for different modes
+def create_data_loaders(data_dir, batch_size=32, use_weighted_sampling=True):
+    # Transforms
     train_transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.Grayscale(num_output_channels=3),
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(20),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2),
         transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
-        )
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.25, 0.25, 0.25])
     ])
     
     val_test_transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.Grayscale(num_output_channels=3),
         transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
-        )
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.25, 0.25, 0.25])
     ])
     
-    # Create datasets
-    train_dataset = ChestXRayDataset(
-        data_dir, 
-        transform=train_transform, 
-        mode='train'
-    )
-    val_dataset = ChestXRayDataset(
-        data_dir, 
-        transform=val_test_transform, 
-        mode='val'
-    )
-    test_dataset = ChestXRayDataset(
-        data_dir, 
-        transform=val_test_transform, 
-        mode='test'
-    )
+    # Datasets
+    train_dataset = ChestXRayDataset(data_dir, transform=train_transform, mode='train')
+    val_dataset = ChestXRayDataset(data_dir, transform=val_test_transform, mode='val')
+    test_dataset = ChestXRayDataset(data_dir, transform=val_test_transform, mode='test')
     
-    # Create data loaders
+    # Weighted sampling
+    sampler = None
+    if use_weighted_sampling:
+        weights = train_dataset.get_sample_weights()
+        sampler = WeightedRandomSampler(weights=weights, num_samples=len(weights), replacement=True)
+    
+    # DataLoaders
     train_loader = DataLoader(
         train_dataset, 
-        batch_size=batch_size, 
-        shuffle=True, 
-        num_workers=4
-    )
-    val_loader = DataLoader(
-        val_dataset, 
-        batch_size=batch_size, 
-        shuffle=False, 
-        num_workers=4
-    )
-    test_loader = DataLoader(
-        test_dataset, 
-        batch_size=batch_size, 
-        shuffle=False, 
+        batch_size=batch_size,
+        sampler=sampler,
+        shuffle=(sampler is None),
         num_workers=4
     )
     
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    
+    print(f"Train: {len(train_dataset)} images, Val: {len(val_dataset)} images, Test: {len(test_dataset)} images")
+    
     return train_loader, val_loader, test_loader
+
+def compute_dataset_stats(data_dir):
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.Grayscale(num_output_channels=3),
+        transforms.ToTensor()
+    ])
+    
+    dataset = ChestXRayDataset(data_dir, transform=transform, mode='train')
+    loader = DataLoader(dataset, batch_size=64, num_workers=4)
+    
+    mean = 0.
+    std = 0.
+    total_samples = 0
+    
+    for images, _ in loader:
+        batch_samples = images.size(0)
+        images = images.view(batch_samples, images.size(1), -1)
+        mean += images.mean(2).sum(0)
+        std += images.std(2).sum(0)
+        total_samples += batch_samples
+    
+    mean /= total_samples
+    std /= total_samples
+    
+    return mean.tolist(), std.tolist()

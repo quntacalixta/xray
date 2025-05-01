@@ -48,6 +48,30 @@ def evaluate(threshold=0.5, model_path='best_model.pth'):
         'preds': np.array(all_preds),
         'probs': np.array(all_probs)
     }
+def calculate_clinical_metrics(y_true, y_pred, y_prob):
+    """Calculate clinical metrics like PPV and NPV"""
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    
+    # Métriques cliniques
+    sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+    ppv = tp / (tp + fp) if (tp + fp) > 0 else 0  # Valeur prédictive positive
+    npv = tn / (tn + fn) if (tn + fn) > 0 else 0  # Valeur prédictive négative
+    
+    clinical_metrics = {
+        'sensitivity': sensitivity,
+        'specificity': specificity,
+        'ppv': ppv,
+        'npv': npv
+    }
+    
+    print("\nClinical Metrics:")
+    print(f"Sensitivity (Recall): {sensitivity:.4f}")
+    print(f"Specificity: {specificity:.4f}")
+    print(f"Positive Predictive Value (PPV): {ppv:.4f}")
+    print(f"Negative Predictive Value (NPV): {npv:.4f}")
+    
+    return clinical_metrics
 
 if __name__ == '__main__':
     # NEW: Test multiple thresholds

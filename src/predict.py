@@ -77,49 +77,35 @@ def predict(model, image_tensor, threshold=0.5, device='cpu'):
     return prediction, pneumonia_prob
 
 def visualize_prediction(image, prediction, probability, save_path=None):
-    """
-    Visualize the prediction
-    
-    Args:
-        image (PIL.Image): Original image
-        prediction (int): Model prediction (0=Normal, 1=Pneumonia)
-        probability (float): Prediction probability
-        save_path (str, optional): Path to save visualization
-        
-    Returns:
-        matplotlib.figure.Figure: Figure object
-    """
     class_names = ['NORMAL', 'PNEUMONIA']
     class_name = class_names[prediction]
     
-    plt.figure(figsize=(8, 8))
-    plt.imshow(image, cmap='gray')
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.imshow(image, cmap='gray')
     
     # Set title color based on prediction
     title_color = 'green' if prediction == 0 else 'red'
+    ax.set_title(f'Prediction: {class_name} ({probability:.2%})', 
+                color=title_color, fontsize=16)
     
-    plt.title(f'Prediction: {class_name} ({probability:.2%})', 
-             color=title_color, fontsize=16)
-    
-    # Add confidence bar
-    plt.figtext(0.5, 0.01, f'Confidence', ha='center')
-    plt.figtext(0.5, 0.03, f'NORMAL {(1-probability):.2%} | {probability:.2%} PNEUMONIA', 
+    # Add confidence text
+    plt.figtext(0.5, 0.01, f'NORMAL {(1-probability):.2%} | {probability:.2%} PNEUMONIA', 
                ha='center', fontsize=12)
     
-    # Correction de la barre de couleur
+    # Properly create colorbar
     norm = plt.Normalize(0, 1)
     sm = plt.cm.ScalarMappable(cmap=plt.cm.RdYlGn_r, norm=norm)
     sm.set_array([])
-    plt.colorbar(sm, orientation='horizontal', ticks=[0, 0.5, 1], 
-                 label='Pneumonia Probability', pad=0.2)
+    fig.colorbar(sm, ax=ax, orientation='horizontal', label='Pneumonia Probability')
     
-    plt.axis('off')
+    ax.axis('off')
     plt.tight_layout()
     
     if save_path:
         plt.savefig(save_path)
+        plt.close(fig)  # Important pour éviter les fuites de mémoire
     
-    return plt.gcf()
+    return fig
 
 def process_batch(model, image_paths, threshold=0.5, output_dir=None, device='cpu'):
     """

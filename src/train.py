@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 import wandb
 from tqdm import tqdm
@@ -7,6 +8,18 @@ import yaml
 import os
 from src.data.preprocessing import create_data_loaders
 from src.models.model import ChestXRayClassifier
+
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=0.25, gamma=2):
+        super().__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+    
+    def forward(self, inputs, targets):
+        CE_loss = F.cross_entropy(inputs, targets, reduction='none')
+        pt = torch.exp(-CE_loss)
+        F_loss = self.alpha * (1-pt)**self.gamma * CE_loss
+        return F_loss.mean()
 
 def validate_config(config):
     """Ensure all config values have correct types"""
@@ -44,10 +57,11 @@ def train_model(config_path='configs/config.yaml'):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     
-    # Data loaders
+    # Data loaders avec weighted sampling
     train_loader, val_loader, test_loader = create_data_loaders(
         data_dir='data/raw/chest_xray',
-        batch_size=config['training']['batch_size']
+        batch_size=config['training']['batch_size'],
+        use_weighted_sampling=True
     )
     
     print(f"Training samples: {len(train_loader.dataset)}")
@@ -60,32 +74,38 @@ def train_model(config_path='configs/config.yaml'):
         pretrained=config['model']['pretrained']
     ).to(device)
     
-    # Loss and optimizer
-    criterion = nn.CrossEntropyLoss()
+    # Focal Loss au lieu de Cross Entropy pour gérer le déséquilibre
+    criterion = FocalLoss(alpha=0.25, gamma=2)
+    
+    # Optimizer avec learning rate augmenté
     if config['training']['optimizer'].lower() == 'adam':
         optimizer = optim.Adam(
             model.parameters(),
-            lr=config['training']['learning_rate'],
+            lr=0.001,  # Augmentation du LR initial
             weight_decay=config['training']['weight_decay']
         )
     elif config['training']['optimizer'].lower() == 'sgd':
         optimizer = optim.SGD(
             model.parameters(),
-            lr=config['training']['learning_rate'],
+            lr=0.01,  # Augmentation du LR initial
             momentum=0.9,
             weight_decay=config['training']['weight_decay']
         )
     else:
         raise ValueError(f"Unsupported optimizer: {config['training']['optimizer']}")
     
-    # Learning rate scheduler
+    # Learning rate scheduler plus agressif
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, 
         mode='max', 
-        factor=0.5, 
-        patience=5, 
+        factor=0.5,
+        patience=5,
         verbose=True
     )
+    
+    # Early stopping
+    early_stopping_patience = 10
+    early_stopping_counter = 0
     
     # Create directory for checkpoints
     os.makedirs('checkpoints', exist_ok=True)
@@ -191,6 +211,12 @@ def train_model(config_path='configs/config.yaml'):
             best_val_accuracy = val_accuracy
             torch.save(checkpoint, 'best_model.pth')
             print(f"New best model saved with validation accuracy: {val_accuracy:.2f}%")
+            early_stopping_counter = 0
+        else:
+            early_stopping_counter += 1
+            if early_stopping_counter >= early_stopping_patience:
+                print(f"Early stopping triggered after {epoch+1} epochs")
+                break
     
     print(f"Training completed. Best validation accuracy: {best_val_accuracy:.2f}%")
     wandb.finish()

@@ -59,22 +59,6 @@ def check_dependencies():
 
     return True
 
-    
-    missing_packages = []
-    for package in required_packages:
-        try:
-            importlib.import_module(package)
-            print(f"✅ {package} is installed")
-        except ImportError:
-            missing_packages.append(package)
-            print(f"❌ {package} is missing")
-    
-    if missing_packages:
-        print("\nInstall missing packages with:")
-        print(f"pip install {' '.join(missing_packages)}")
-        return False
-    return True
-
 def check_cuda():
     """Check CUDA availability"""
     print("\nChecking CUDA...")
